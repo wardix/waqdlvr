@@ -1,0 +1,29 @@
+{
+  "name": "waqdlvr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.ts",
+  "scripts": {
+    "start": "node ./dist/app.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "moment-timezone": "^0.5.43",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.22.1",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.1",
+    "@types/dotenv": "^8.2.0",
+    "@types/node": "^20.4.7",
+    "@types/qrcode-terminal": "^0.12.0",
+    "typescript": "^5.1.6"
+  }
+}
