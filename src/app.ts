@@ -6,6 +6,7 @@ import winston from "winston";
 import moment from "moment-timezone";
 
 config();
+
 const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const logger = winston.createLogger({
@@ -73,24 +74,23 @@ async function main(): Promise<void> {
   }
 }
 
-function processMessage(message: amqp.Message | null): void {
+async function processMessage(message: amqp.Message | null): Promise<void> {
   if (!message) return;
 
-  let proceed = false;
   const job: Job = JSON.parse(message.content.toString());
   const now = Date.now();
   const elapsed = now - lastProcessedTimeStamp;
 
   if (elapsed < +process.env.RATE_LIMIT_TIME_MS!) {
     const delay = +process.env.RATE_LIMIT_TIME_MS! - elapsed;
-    setTimeout(() => {
-      proceed = processJob(job);
+    setTimeout(async () => {
+      const proceed = await processJob(job);
       handleJobOutcome(proceed, message);
     }, delay);
     return;
   }
 
-  proceed = processJob(job);
+  const proceed = await processJob(job);
   handleJobOutcome(proceed, message);
 }
 
@@ -107,42 +107,27 @@ function reconnectAfterDelay(func: () => void, delay: number = 1000): void {
   setTimeout(func, delay);
 }
 
-function processJob(job: Job): boolean {
+async function processJob(job: Job): Promise<boolean> {
   if (!waReady) {
     logger.warn("WhatsApp client is not ready.");
     return false;
   }
+
   const to = job.to.endsWith(".us") ? job.to : job.to + "@c.us";
 
-  if (to.endsWith("@c.us")) {
-    client
-      .isRegisteredUser(to)
-      .then(() => {
-        client
-          .sendMessage(to, job.msg)
-          .then(() => {
-            logger.info("Message sent successfully", job);
-          })
-          .catch((error) => {
-            logger.error(`Failed to send message: ${error.message}`);
-          });
-      })
-      .catch((error) => {
-        logger.error(`${to} is not available: ${error.message}`);
-      });
+  try {
+    if (to.endsWith("@c.us") && !(await client.isRegisteredUser(to))) {
+      logger.error(`${to} is not registered.`);
+      return false;
+    }
+
+    await client.sendMessage(to, job.msg);
+    logger.info("Message sent successfully", job);
     return true;
+  } catch (error: any) {
+    logger.error(`Failed to send message: ${error.message}`);
+    return false;
   }
-
-  client
-    .sendMessage(to, job.msg)
-    .then(() => {
-      logger.info("Message sent successfully", job);
-    })
-    .catch((error) => {
-      logger.error(`Failed to send message: ${error.message}`);
-    });
-
-  return true;
 }
 
 main();
