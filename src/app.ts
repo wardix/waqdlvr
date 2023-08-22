@@ -118,7 +118,7 @@ async function processJob(job: Job): Promise<boolean> {
   try {
     if (to.endsWith("@c.us") && !(await client.isRegisteredUser(to))) {
       logger.error(`${to} is not registered.`);
-      return false;
+      return true;
     }
 
     await client.sendMessage(to, job.msg);
