@@ -8,6 +8,7 @@ import moment from "moment-timezone";
 config();
 
 const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const wwebVersion = '2.2407.3'
 
 const logger = winston.createLogger({
   level: "info",
@@ -36,6 +37,10 @@ let lastProcessedTimeStamp: number = Date.now();
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: { args: ["--no-sandbox"] },
+  webVersionCache: {
+    type: 'remote',
+    remotePath: `https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/${wwebVersion}.html`
+  }
 });
 
 client.on("qr", (qr) => {
