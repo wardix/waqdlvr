@@ -127,7 +127,7 @@ async function processJob(job: Job): Promise<boolean> {
     }
 
     await client.sendMessage(to, job.msg);
-    logger.info("Message sent successfully", job);
+    logger.info(`The message (${job.msg}) sent to ${job.to}`);
     return true;
   } catch (error: any) {
     logger.error(`Failed to send message: ${error.message}`);
