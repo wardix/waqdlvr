@@ -4,6 +4,7 @@ import amqp from 'amqplib'
 import { config } from 'dotenv'
 import winston from 'winston'
 import moment from 'moment-timezone'
+import axios from 'axios'
 
 config()
 
@@ -56,7 +57,30 @@ client.on('error', (error) => {
   logger.error(`WhatsApp Error: ${error.message}`)
 })
 
+client.on('message_create', (message) => {
+  if (message.body === '!ping') {
+    client.sendMessage(message.from, 'pong')
+    return
+  }
+  if (message.body === '!asui') {
+    submitEnqueuedJob({
+      name: 'fetchEngineerTickets',
+      notify: message.from
+    })
+    return
+  }
+})
+
 client.initialize()
+
+async function submitEnqueuedJob(job: any) {
+  const url = process.env.JOB_ENQUEUE_API_URL as string
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Api-Key': process.env.JOB_ENQUEUE_API_KEY
+  }
+  await axios.post(url, job, { headers })
+}
 
 async function main(): Promise<void> {
   try {
