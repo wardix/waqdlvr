@@ -65,7 +65,16 @@ client.on('message_create', (message) => {
   if (message.body === '!asui') {
     submitEnqueuedJob({
       name: 'fetchEngineerTickets',
-      notify: message.from
+      notify: message.from,
+    })
+    return
+  }
+  if (message.body.startsWith('!silence ')) {
+    submitEnqueuedJob({
+      name: 'silenceAlert',
+      attributes: message.body.substring(9),
+      contact: message.author,
+      notify: message.from,
     })
     return
   }
@@ -77,7 +86,7 @@ async function submitEnqueuedJob(job: any) {
   const url = process.env.JOB_ENQUEUE_API_URL as string
   const headers = {
     'Content-Type': 'application/json',
-    'X-Api-Key': process.env.JOB_ENQUEUE_API_KEY
+    'X-Api-Key': process.env.JOB_ENQUEUE_API_KEY,
   }
   await axios.post(url, job, { headers })
 }
