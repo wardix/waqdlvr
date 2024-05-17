@@ -9,7 +9,7 @@ import axios from 'axios'
 config()
 
 const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-const wwebVersion = '2.2407.3'
+const wwebVersion = '2.2412.54'
 
 const logger = winston.createLogger({
   level: 'info',
