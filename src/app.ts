@@ -57,7 +57,7 @@ client.on('error', (error) => {
   logger.error(`WhatsApp Error: ${error.message}`)
 })
 
-client.on('message_create', (message) => {
+client.on('message_create', async (message) => {
   if (message.body === '!ping') {
     client.sendMessage(message.from, 'pong')
     return
@@ -70,10 +70,11 @@ client.on('message_create', (message) => {
     return
   }
   if (message.body.startsWith('!silence ')) {
+    const contact = await message.getContact()
     submitEnqueuedJob({
       name: 'silenceAlert',
       attributes: message.body.substring(9),
-      contact: message.author,
+      contact: contact.name,
       notify: message.from,
     })
     return
