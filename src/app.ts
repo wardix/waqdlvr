@@ -1,5 +1,5 @@
 import qrcode from 'qrcode-terminal'
-import { Client, LocalAuth } from 'whatsapp-web.js'
+import { Client, LocalAuth, MessageMedia } from 'whatsapp-web.js'
 import amqp from 'amqplib'
 import { config } from 'dotenv'
 import winston from 'winston'
@@ -27,7 +27,11 @@ const logger = winston.createLogger({
 
 interface Job {
   to: string
+  type: string
   msg: string
+  options?: {
+    caption?: string
+  }
 }
 
 let connection: amqp.Connection
@@ -160,8 +164,17 @@ async function processJob(job: Job): Promise<boolean> {
       return true
     }
 
-    await client.sendMessage(to, job.msg)
-    logger.info(`The message (${job.msg}) sent to ${job.to}`)
+    const matches =
+      job.type === 'media' ? job.msg.match(/^data:([^;]);base64,(.+)$/) : null
+    if (job.type === 'media' && matches) {
+      const mime = matches[1]
+      const data = matches[2]
+      const media = new MessageMedia(mime, data)
+      await client.sendMessage(to, media, job.options)
+    } else {
+      await client.sendMessage(to, job.msg)
+    }
+    logger.info(`The message sent to ${job.to}`)
     return true
   } catch (error: any) {
     logger.error(`Failed to send message: ${error.message}`)
