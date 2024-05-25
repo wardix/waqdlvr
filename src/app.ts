@@ -165,7 +165,7 @@ async function processJob(job: Job): Promise<boolean> {
     }
 
     const matches =
-      job.type === 'media' ? job.msg.match(/^data:([^;]);base64,(.+)$/) : null
+      job.type === 'media' ? job.msg.match(/^data:([^;]+);base64,(.+)$/) : null
     if (job.type === 'media' && matches) {
       const mime = matches[1]
       const data = matches[2]
