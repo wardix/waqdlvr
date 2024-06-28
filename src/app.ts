@@ -9,7 +9,7 @@ import axios from 'axios'
 config()
 
 const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-const wwebVersion = '2.2412.54'
+const wwebVersion = process.env.WHATSAPP_WEB_VERSION!
 
 const logger = winston.createLogger({
   level: 'info',
