@@ -73,14 +73,20 @@ client.on('message_create', async (message) => {
     })
     return
   }
-  if (message.body.startsWith('!silence ')) {
+  if (message.body.startsWith('!silence')) {
     const contact = await message.getContact()
-    submitEnqueuedJob({
-      name: 'silenceAlert',
-      attributes: message.body.substring(9),
-      contact: contact.name,
-      notify: message.from,
-    })
+    message.body
+      .substring(8)
+      .trim()
+      .split('\n')
+      .forEach((line) => {
+        submitEnqueuedJob({
+          name: 'silenceAlert',
+          attributes: line,
+          contact: contact.name,
+          notify: message.from,
+        })
+      })
     return
   }
 })
