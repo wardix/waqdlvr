@@ -162,7 +162,7 @@ async function processJob(job: Job): Promise<boolean> {
     return false
   }
 
-  const to = job.to.endsWith('.us') ? job.to : job.to + '@c.us'
+  const to = `${job.to}`.endsWith('.us') ? job.to : `${job.to}@c.us`
 
   try {
     if (to.endsWith('@c.us') && !(await client.isRegisteredUser(to))) {
