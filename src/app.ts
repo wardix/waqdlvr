@@ -162,6 +162,11 @@ async function processJob(job: Job): Promise<boolean> {
     return false
   }
 
+  if (!job.to) {
+    logger.error('to field is not set')
+    return true
+  }
+
   const to = `${job.to}`.endsWith('.us') ? job.to : `${job.to}@c.us`
 
   try {
